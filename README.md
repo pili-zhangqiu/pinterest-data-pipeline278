@@ -5,15 +5,8 @@
 *** https://github.com/othneildrew/Best-README-Template
 -->
 
-![Logo Dark](img/logo-dark-mode.png#gh-dark-mode-only)
-![Logo Light](img/logo-light-mode.png#gh-light-mode-only)
-
-<!-- PROJECT LOGO -->
-<p align="center">
-  <br>
-  Unified data pipelines for Pinterest
-</p>
-
+![Logo Dark](img/banner_dark_mode.png#gh-dark-mode-only)
+![Logo Light](img/banner_light_mode.png#gh-light-mode-only)
 
 <!-- SHIELDS FOR REPO -->
 <p align="center">
