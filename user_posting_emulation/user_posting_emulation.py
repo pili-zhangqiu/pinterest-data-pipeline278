@@ -115,21 +115,20 @@ class DataEmulator:
         '''
         Run an endless emulation data query cycle and print the emulated data.
         ''' 
-        while True:
-            # Get data
-            emulation_row = self.get_emulation_data()
+        # Get data
+        emulation_row = self.get_emulation_data()
             
-            # Print data
-            print("Pin data:")     
-            print(emulation_row["pin"])
+        # Print data
+        print("Pin data:")     
+        print(emulation_row["pin"])
             
-            print("\nGeolocation data:")     
-            print(emulation_row["geo"])
+        print("\nGeolocation data:")     
+        print(emulation_row["geo"])
             
-            print("\nUser data:")     
-            print(emulation_row["user"])
+        print("\nUser data:")     
+        print(emulation_row["user"])
             
-            print("---")
+        print("---")
 
 
 if __name__ == "__main__":
