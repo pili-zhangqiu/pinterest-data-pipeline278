@@ -82,7 +82,6 @@ class DataEmulator:
         result: dict
             Random emulation data in dict format. Keys: "pin", "geo", "user".
         '''
-        sleep(random.randrange(0, 2))
         random_row = random.randint(0, 11000)
 
         with self.engine.connect() as connection:
@@ -114,22 +113,23 @@ class DataEmulator:
     
     def print_to_console(self) -> None:   
         '''
-        Run an emulation data query and print the emulated data.
+        Run an endless emulation data query cycle and print the emulated data.
         ''' 
-        # Get data
-        emulation_row = self.get_emulation_data()
-        
-        # Print data
-        print("Pin data:")     
-        print(emulation_row["pin"])
-        
-        print("\nGeolocation data:")     
-        print(emulation_row["geo"])
-        
-        print("\nUser data:")     
-        print(emulation_row["user"])
-        
-        print("---")
+        while True:
+            # Get data
+            emulation_row = self.get_emulation_data()
+            
+            # Print data
+            print("Pin data:")     
+            print(emulation_row["pin"])
+            
+            print("\nGeolocation data:")     
+            print(emulation_row["geo"])
+            
+            print("\nUser data:")     
+            print(emulation_row["user"])
+            
+            print("---")
 
 
 if __name__ == "__main__":
@@ -140,5 +140,6 @@ if __name__ == "__main__":
 
     # Print emulation to console
     while True:
-        emulator.print_to_console()
+        sleep(random.randrange(0, 2))   # Add a random delay between data
+        emulator.print_to_console()     # Print emulated user post data
     
