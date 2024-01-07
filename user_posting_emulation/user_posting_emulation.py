@@ -117,7 +117,7 @@ class DataEmulator:
     
     def print_to_console(self) -> None:   
         '''
-        Run an endless emulation data query cycle and print the emulated data.
+        Run a single emulation data query and print the emulated data.
         ''' 
         # Get data
         emulation_row = self.get_emulation_data()
@@ -133,6 +133,14 @@ class DataEmulator:
         print(emulation_row["user"])
             
         print("---")
+        
+    def print_to_console_cycle(self) -> None:   
+        '''
+        Run an endless emulation data query cycle and print the emulated data.
+        ''' 
+        while True:
+            sleep(random.randrange(0, 2))   # Add a random delay between data
+            self.print_to_console()         # Print emulated user post data
 
 
 if __name__ == "__main__":
