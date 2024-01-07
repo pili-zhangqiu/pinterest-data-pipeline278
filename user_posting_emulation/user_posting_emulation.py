@@ -85,31 +85,35 @@ class DataEmulator:
         random_row = random.randint(0, 11000)
 
         with self.engine.connect() as connection:
-            # Get pin data
-            pin_string = text(f"SELECT * FROM pinterest_data LIMIT {random_row}, 1")
-            pin_selected_row = connection.execute(pin_string)
-                
-            for row in pin_selected_row:
-                pin_result = dict(row._mapping)
+            try:
+                # Get pin data
+                pin_string = text(f"SELECT * FROM pinterest_data LIMIT {random_row}, 1")
+                pin_selected_row = connection.execute(pin_string)
+                    
+                for row in pin_selected_row:
+                    pin_result = dict(row._mapping)
 
-            # Get geolocation data
-            geo_string = text(f"SELECT * FROM geolocation_data LIMIT {random_row}, 1")
-            geo_selected_row = connection.execute(geo_string)
-            
-            for row in geo_selected_row:
-                geo_result = dict(row._mapping)
-
-            # Get user data
-            user_string = text(f"SELECT * FROM user_data LIMIT {random_row}, 1")
-            user_selected_row = connection.execute(user_string)
+                # Get geolocation data
+                geo_string = text(f"SELECT * FROM geolocation_data LIMIT {random_row}, 1")
+                geo_selected_row = connection.execute(geo_string)
                 
-            for row in user_selected_row:
-                user_result = dict(row._mapping)
+                for row in geo_selected_row:
+                    geo_result = dict(row._mapping)
+
+                # Get user data
+                user_string = text(f"SELECT * FROM user_data LIMIT {random_row}, 1")
+                user_selected_row = connection.execute(user_string)
+                    
+                for row in user_selected_row:
+                    user_result = dict(row._mapping)
+                
+                # Construct dictionary
+                result = {"pin": pin_result, "geo": geo_result, "user": user_result}
+                return result
             
-            # Construct dictionary
-            result = {"pin": pin_result, "geo": geo_result, "user": user_result}
-            
-            return result
+            except Exception as e:
+                print(f"Error when retrieving emulation data.\nExit with error: {e}")
+                return None
     
     def print_to_console(self) -> None:   
         '''
