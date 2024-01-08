@@ -17,7 +17,7 @@ random.seed(100)
 
 
 class DataEmulator:
-    def __init__(self, credentials_emulation_filepath: str, credentials_api_filepath: str) -> None:
+    def __init__(self, credentials_emulation_filepath, credentials_api_filepath):
         '''
         Initialise DataEmulator class and load class variables
         '''
