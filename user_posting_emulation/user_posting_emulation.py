@@ -11,38 +11,43 @@ import yaml
 import pathlib
 import os
 
+from utils import json_serializer
+
 random.seed(100)
 
 
 class DataEmulator:
-    def __init__(self, credentials_filepath: str) -> None:
+    def __init__(self, credentials_emulation_filepath: str, credentials_api_filepath: str) -> None:
         '''
         Initialise DataEmulator class and load class variables
         '''
-        # Get credentials
-        self.credentials_filepath = credentials_filepath
-        self.credentials = self.read_db_creds()
+        # Get credentials to emulation database
+        self.credentials_emulation = self.read_db_creds(credentials_emulation_filepath)
 
-        # Initialise engine
+        # Initialise emulation database engine
         self.engine = self.create_db_connector()
+        
+        # Invoke URL for Kafka API
+        self.credentials_api = self.read_db_creds(credentials_api_filepath)
     
-    def read_db_creds(self) -> dict:
+    def read_db_creds(self, filepath: str) -> dict:
         '''
         Read the credentials yaml file and return a dictionary of the credentials.
 
+        Parameters:
+        ----------
+        filepath: str
+            Path to the credentials file
+            
         Returns:
         -------
         credentials: dict
             Dictionary containing the credentials
         '''
-        with open(self.credentials_filepath, 'r') as file:
+        with open(filepath, 'r') as file:
             credentials = yaml.safe_load(file)
 
         return credentials
-        
-    '''def create_db_connector(self):
-        engine = sqlalchemy.create_engine(f"mysql+pymysql://{self.USER}:{self.PASSWORD}@{self.HOST}:{self.PORT}/{self.DATABASE}?charset=utf8mb4")
-        return engine'''
     
     def create_db_connector(self) -> Engine:
         '''
@@ -55,11 +60,11 @@ class DataEmulator:
             PostgreSQL database engine
         '''
         # Define the database credentials
-        host=self.credentials['RDS_HOST']
-        port=self.credentials['RDS_PORT']
-        database=self.credentials['RDS_DATABASE']
-        user=self.credentials['RDS_USER']
-        password=self.credentials['RDS_PASSWORD']
+        host=self.credentials_emulation['RDS_HOST']
+        port=self.credentials_emulation['RDS_PORT']
+        database=self.credentials_emulation['RDS_DATABASE']
+        user=self.credentials_emulation['RDS_USER']
+        password=self.credentials_emulation['RDS_PASSWORD']
 
         # Try to create engine
         try: 
@@ -120,17 +125,17 @@ class DataEmulator:
         Run a single emulation data query and print the emulated data.
         ''' 
         # Get data
-        emulation_row = self.get_emulation_data()
+        emulation_data = self.get_emulation_data()
             
         # Print data
         print("Pin data:")     
-        print(emulation_row["pin"])
+        print(emulation_data["pin"])
             
         print("\nGeolocation data:")     
-        print(emulation_row["geo"])
+        print(emulation_data["geo"])
             
         print("\nUser data:")     
-        print(emulation_row["user"])
+        print(emulation_data["user"])
             
         print("---")
         
@@ -142,15 +147,52 @@ class DataEmulator:
             sleep(random.randrange(0, 2))   # Add a random delay between data
             self.print_to_console()         # Print emulated user post data
 
+    def post(self, data: dict) -> text:   
+        '''
+        Post input data to Kafka topics.
+        
+        Parameters:
+        ----------
+        data: dict
+            Data payload for API post request. Keys: "pin", "geo", "user"
+        '''
+        valid_keys = ["pin", "geo", "user"]
+        
+        for key in valid_keys:
+            payload = json.dumps({"records": [{"value": data[key]}]}, default=json_serializer)
+            headers = {'Content-Type': 'application/vnd.kafka.json.v2+json'}
+            invoke_url = self.credentials_api["INVOKE_URL_BASE"] + "." + key
+                
+            print(payload)
+            print(invoke_url)
+
+            response = requests.request("POST", url=invoke_url, headers=headers, data=payload)
+            return response
+        
+    def post_emulation(self) -> None:
+        '''
+        Retrieve emulated data and post to Kafka.
+        '''        
+        # Get data
+        emulation_data = self.get_emulation_data()
+        
+        # Post data
+        print("Posting emulated data to Kafka topic...")
+        response = self.post(emulation_data)        
+        print(f"Response: {response.status_code}")
+        
 
 if __name__ == "__main__":
-    # Initialise database connector to retrieve emulation data
+    # Initialise user posting emulation class
     directory = os.path.dirname(os.path.abspath(__file__))
-    credentials_filepath = directory + "/" + "db_creds_aws_emulation.yaml"
-    emulator = DataEmulator(credentials_filepath)
-
-    # Print emulation to console
-    while True:
-        sleep(random.randrange(0, 2))   # Add a random delay between data
-        emulator.print_to_console()     # Print emulated user post data
+    creds_emulation_filepath = directory + "/" + "db_creds_aws_emulation.yaml"
+    creds_api_filepath = directory + "/" + "db_creds_api.yaml"
+    
+    emulator = DataEmulator(creds_emulation_filepath, creds_api_filepath)
+    
+    # Print data
+    # emulator.print_to_console_cycle()
+    
+    # Post data
+    emulator.post_emulation()
     

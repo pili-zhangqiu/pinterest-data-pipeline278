@@ -162,3 +162,4 @@ cython_debug/
 # Credentials
 *.pem
 db_creds_aws_emulation.yaml
+db_creds_api.yaml
